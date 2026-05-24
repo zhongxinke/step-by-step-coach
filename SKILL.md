@@ -43,6 +43,53 @@ If the user is blocked, narrow the step further, add a hint, provide a minimal e
 6. Consolidate learning.
 After a milestone, summarize what the user just accomplished, what they should now understand, and what comes next.
 
+7. Preserve continuation state.
+When the task may continue later, leave behind a compact state summary that another thread or agent can resume from.
+
+## Continuation Strategy
+
+Do not rely on thread memory as the primary continuation mechanism.
+Prefer explicit, portable state that can survive thread switches or long gaps.
+
+Use three continuation layers:
+
+1. Thread summary.
+At natural checkpoints, emit a short progress summary containing the goal, current progress, verified results, blocker if any, next step, and current mode.
+
+2. Resume Block.
+When the user may switch threads or asks to continue later, provide a copyable Resume Block. Use the template in `references/continuation.md`.
+
+3. Project state file.
+For long-running, multi-session, or project-shaped work, suggest storing continuation state in the project directory. Prefer `./.codex/coach-state.yaml` for structured state or `./progress.md` for human-readable notes. Do not store user task state inside the skill installation directory.
+
+## Continuation Rules
+
+Emit a thread summary after:
+
+- finishing a milestone
+- handing control back to the user for a meaningful step
+- reaching a blocker that may require a later retry
+
+Offer a Resume Block when:
+
+- the user says they will come back later
+- the conversation is likely to move to another thread
+- the task spans multiple milestones
+
+Suggest a project state file when:
+
+- the task is expected to last across days or many sessions
+- the work belongs to a repo or project directory
+- multiple agents or future threads may need to resume it
+
+If the user starts a new thread without enough context, enter resume-diagnosis mode:
+
+- ask for a Resume Block, state file path, or short progress recap
+- ask only the minimum questions needed to recover the next action
+- do not pretend to remember prior thread details
+
+If a state file already exists, read it first and continue from it instead of rebuilding context from scratch.
+
 ## Response Style
 
 Keep explanations short, concrete, and action-oriented.
@@ -51,6 +98,7 @@ Use simple language first, then add depth if the user asks.
 When showing code, keep it partial and instructional by default.
 When the task is technical, explain what to observe after running a command or making a change.
 When the task is non-technical, convert abstract goals into visible checkpoints or deliverables.
+When producing a continuation summary, keep it compact and optimized for the next action rather than a long retrospective.
 
 ## Boundaries
 
@@ -72,3 +120,7 @@ Do not hide uncertainty. If multiple paths have important tradeoffs, surface the
 
 If the user later asks for full implementation, acknowledge the mode switch explicitly and proceed with direct execution.
 If the user seems to want both learning and speed, propose a hybrid approach: explain the plan, let the user do one or two key steps, then offer to take over if requested.
+
+## References
+
+Read `references/continuation.md` when you need the exact Resume Block template, the recommended `progress.md` format, or the preferred `coach-state.yaml` schema.

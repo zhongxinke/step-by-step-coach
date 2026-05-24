@@ -20,6 +20,7 @@ When triggered, the skill makes Codex:
 - pause at natural checkpoints
 - provide partial examples, hints, snippets, or pseudocode when useful
 - avoid handing over a complete implementation by default
+- preserve continuation state so the work can resume later
 
 ## Default Behavior
 
@@ -44,6 +45,18 @@ If the user explicitly asks for direct execution, full implementation, or a "do 
 
 The switch should be explicit so the user knows the interaction style has changed.
 
+## Continuation Across Threads
+
+This skill is designed to survive pauses and thread switches without relying on implicit thread memory.
+
+It uses three continuation layers:
+
+- thread summaries at natural checkpoints
+- a copyable `Resume` block for moving to another thread
+- optional project-local state files such as `./.codex/coach-state.yaml` or `./progress.md`
+
+Project-specific progress should live in the project or workspace, not inside the skill installation directory.
+
 ## Example Prompts
 
 - `Use $step-by-step-coach to teach me how to build this feature from scratch.`
@@ -55,6 +68,7 @@ The switch should be explicit so the user knows the interaction style has change
 
 - `SKILL.md`: trigger description and operating instructions
 - `agents/openai.yaml`: UI metadata for the skill
+- `references/continuation.md`: resume templates and project state file patterns
 
 ## Install
 
