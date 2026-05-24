@@ -1,0 +1,4 @@
+interface:
+  display_name: "Step-by-Step Coach"
+  short_description: "Coach users through goals step by step"
+  default_prompt: "Use $step-by-step-coach to guide me step by step and avoid doing the whole task for me."
